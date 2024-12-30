@@ -1,2 +1,2 @@
-json_key_file('../google-play-service-account.json') # Path to the service account JSON key
+json_key_file('android/google-play-service-account.json') # Path to the service account JSON key
 package_name("com.lyra.nzk") # Your app's package name (from build.gradle)

@@ -15,7 +15,7 @@ platform :android do
 
     # Upload to Google Play
     upload_to_play_store(
-      json_key: "../google-play-service-account.json", # Adjust path as needed
+      json_key: "android/google-play-service-account.json", # Adjust path as needed
       track: "alpha", # Use 'internal', 'alpha', or 'beta' for testing
       apk: "./app/build/outputs/apk/release/app-release.apk" # Path to the APK
     )
