@@ -1,57 +1,53 @@
 version: 2.1
 
 executors:
-  base-executor:
+  android-flutter:
     docker:
-      - image: cimg/base:current
+      - image: gmemstr/flutter-fastlane:latest
+    environment:
+      TERM: dumb
+      _JAVA_OPTIONS: "-Xmx2048m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m"'
 
 jobs:
-  build:
-    executor: base-executor
-    working_directory: ~/project
+  alpha_deploy:
+    executor: android-flutter
     steps:
+      # Checkout source code
       - checkout
 
-      # Set up dependencies
-      - run:
-          name: Install Dependencies
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y openjdk-17-jdk ruby-full
-            gem install bundler fastlane
-
-      # Decode sensitive files
+      # Decode the keystore from Base64
       - run:
           name: Decode Keystore
-          command: |
-            echo $KEYSTORE_BASE64 | base64 --decode > android/app/my-release-key.jks
-      - run:
-          name: Decode Google Services
-          command: |
-            echo $GOOGLE_SERVICES_JSON | base64 --decode > android/app/google-services.json
+          command: echo "$KEYSTORE_BASE64" | base64 --decode > android/app/my-release-key.jks
 
-      # Build APK
+      # Decode Google Services JSON
       - run:
-          name: Build APK
-          command: ./gradlew assembleRelease -Pandroid.injected.signing.store.file=android/app/my-release-key.jks \
-            -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD \
-            -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
-            -Pandroid.injected.signing.key.password=$KEY_PASSWORD
+          name: Decode Google Services JSON
+          command: echo "$GOOGLE_SERVICES_JSON" | base64 --decode > android/app/google-services.json
 
-      # Deploy using Fastlane
+      # Decode Google Play Service Account JSON
       - run:
-          name: Deploy to Google Play
-          command: bundle exec fastlane deploy
+          name: Decode Google Play Service Account JSON
+          command: echo "$GOOGLE_PLAY_JSON" | base64 --decode > android/google-play-service-account.json
+
+      # Run Fastlane for alpha release
+      - run:
+          name: Fastlane Alpha Deployment
+          command: cd android && fastlane alpha
 
       # Cleanup sensitive files
       - run:
-          name: Cleanup sensitive files
+          name: Cleanup Sensitive Files
           command: |
             rm android/app/my-release-key.jks
             rm android/app/google-services.json
+            rm android/google-play-service-account.json
 
 workflows:
-  version: 2
-  build_and_deploy:
+  deploy:
     jobs:
-      - build
+      - alpha_deploy:
+          filters:
+            branches:
+              only: main
