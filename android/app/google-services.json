@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "857203055223",
+    "project_id": "stevador-ba6c4",
+    "storage_bucket": "stevador-ba6c4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:857203055223:android:b1875394820e43c0d34472",
+        "android_client_info": {
+          "package_name": "com.lyra.nzk"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFJ5x7j0eKomc5AQSaKC1u9cKFcE6T82c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

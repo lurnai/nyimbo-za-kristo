@@ -1,0 +1,104 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+    id 'com.google.gms.google-services'
+
+
+}
+
+def localProperties = new Properties()
+def versionProperties = new Properties()
+def versionPropertiesFile = rootProject.file("version.properties")
+
+// Load version properties
+if (versionPropertiesFile.exists()) {
+    versionProperties.load(new FileInputStream(versionPropertiesFile))
+}
+
+def flutterVersionCode = localProperties.getProperty("flutter.versionCode", versionProperties.getProperty("flutter.versionCode", "10")).toInteger()
+def flutterVersionName = localProperties.getProperty("flutter.versionName", versionProperties.getProperty("flutter.versionName", "10.5"))
+
+
+android {
+    namespace = "com.lyra.nzk"
+    compileSdkVersion 34
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = 17
+    }
+
+    defaultConfig {
+        applicationId = "com.lyra.nzk"
+        minSdkVersion = flutter.minSdkVersion
+        targetSdkVersion = 34
+        versionCode flutterVersionCode
+        versionName flutterVersionName
+    }
+
+    signingConfigs {
+        release {
+            keyAlias 'my-release-key'
+            keyPassword '5@r4aoR=0gKQ?4G*.Tae5AK'
+            storeFile file('my-release-key.jks')
+            storePassword '5@r4aoR=0gKQ?4G*.Tae5AK'
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+
+dependencies {
+    implementation 'com.google.android.gms:play-services-ads:21.1.0' // Ensure this line is included
+}
+
+// Increment flutter version code and version name
+flutterVersionCode++
+flutterVersionName = incrementVersionName(flutterVersionName)
+
+// Store updated version code and version name to version.properties file
+versionProperties.setProperty("flutter.versionCode", flutterVersionCode.toString())
+versionProperties.setProperty("flutter.versionName", flutterVersionName)
+versionProperties.store(versionPropertiesFile.newWriter(), null)
+
+def String incrementVersionName(String currentVersion) {
+    def parts = currentVersion.split("\\.")
+    
+    if (parts.size() < 3) {
+        // Handle versions that don't have all major, minor, patch parts
+        if (parts.size() == 2) {
+            parts = [parts[0], parts[1], "0"]
+        } else if (parts.size() == 1) {
+            parts = [parts[0], "0", "0"]
+        } else {
+            //throw new GradleException("Invalid version format: $currentVersion")
+        }
+    }
+
+    int major = parts[0].toInteger()
+    int minor = parts[1].toInteger()
+    int patch = parts[2].toInteger()
+
+    // Increment patch version
+    patch++
+
+    // Update version name with new patch version
+    return "${major}.${minor}.${patch}"
+}
