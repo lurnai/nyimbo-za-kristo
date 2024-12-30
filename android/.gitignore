@@ -11,6 +11,3 @@ GeneratedPluginRegistrant.java
 key.properties
 **/*.keystore
 **/*.jks
-# Sensitive files
-android/app/my-release-key.jks
-android/app/google-services.json
