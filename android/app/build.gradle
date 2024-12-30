@@ -40,16 +40,19 @@ android {
         targetSdkVersion = 34
         versionCode flutterVersionCode
         versionName flutterVersionName
+        resValue "string", "google_ads_app_id", System.getenv("GOOGLE_ADS_APP_ID") ?: "your_default_ads_id"
+
     }
 
     signingConfigs {
-        release {
-            keyAlias 'my-release-key'
-            keyPassword '5@r4aoR=0gKQ?4G*.Tae5AK'
-            storeFile file('my-release-key.jks')
-            storePassword '5@r4aoR=0gKQ?4G*.Tae5AK'
-        }
+    release {
+        keyAlias System.getenv("KEY_ALIAS")
+        keyPassword System.getenv("KEY_PASSWORD")
+        storeFile file(System.getenv("KEYSTORE_PATH"))
+        storePassword System.getenv("KEYSTORE_PASSWORD")
     }
+}
+
 
     buildTypes {
         release {
