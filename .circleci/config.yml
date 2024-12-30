@@ -1,0 +1,56 @@
+version: 2.1
+
+executors:
+  android-executor:
+    docker:
+      - image: circleci/android:2022.08.1
+
+jobs:
+  build:
+    executor: android-executor
+    working_directory: ~/project
+    steps:
+      - checkout
+
+      # Decode sensitive files
+      - run:
+          name: Decode Keystore
+          command: echo $KEYSTORE_BASE64 | base64 --decode > android/app/my-release-key.jks
+      - run:
+          name: Decode Google Services
+          command: echo $GOOGLE_SERVICES_JSON | base64 --decode > android/app/google-services.json
+      - run:
+          name: Decode Play Store JSON Key
+          command: echo $GOOGLE_PLAY_JSON | base64 --decode > google-play-service-account.json
+
+      # Install dependencies
+      - run:
+          name: Install Dependencies
+          command: sudo apt-get update && sudo apt-get install -y ruby-full && gem install bundler fastlane
+
+      # Build APK
+      - run:
+          name: Build APK
+          command: ./gradlew assembleRelease -Pandroid.injected.signing.store.file=android/app/my-release-key.jks \
+            -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD \
+            -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
+            -Pandroid.injected.signing.key.password=$KEY_PASSWORD
+
+      # Deploy to Play Store
+      - run:
+          name: Deploy to Play Store
+          command: bundle exec fastlane deploy
+
+      # Cleanup sensitive files
+      - run:
+          name: Cleanup sensitive files
+          command: |
+            rm android/app/my-release-key.jks
+            rm android/app/google-services.json
+            rm google-play-service-account.json
+
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build
