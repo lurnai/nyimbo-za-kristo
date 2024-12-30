@@ -1,32 +1,34 @@
 version: 2.1
 
 executors:
-  android-executor:
+  base-executor:
     docker:
-      - image: circleci/android:2022.08.1
+      - image: cimg/base:current
 
 jobs:
   build:
-    executor: android-executor
+    executor: base-executor
     working_directory: ~/project
     steps:
       - checkout
 
+      # Set up dependencies
+      - run:
+          name: Install Dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y openjdk-17-jdk ruby-full
+            gem install bundler fastlane
+
       # Decode sensitive files
       - run:
           name: Decode Keystore
-          command: echo $KEYSTORE_BASE64 | base64 --decode > android/app/my-release-key.jks
+          command: |
+            echo $KEYSTORE_BASE64 | base64 --decode > android/app/my-release-key.jks
       - run:
           name: Decode Google Services
-          command: echo $GOOGLE_SERVICES_JSON | base64 --decode > android/app/google-services.json
-      - run:
-          name: Decode Play Store JSON Key
-          command: echo $GOOGLE_PLAY_JSON | base64 --decode > google-play-service-account.json
-
-      # Install dependencies
-      - run:
-          name: Install Dependencies
-          command: sudo apt-get update && sudo apt-get install -y ruby-full && gem install bundler fastlane
+          command: |
+            echo $GOOGLE_SERVICES_JSON | base64 --decode > android/app/google-services.json
 
       # Build APK
       - run:
@@ -36,9 +38,9 @@ jobs:
             -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
             -Pandroid.injected.signing.key.password=$KEY_PASSWORD
 
-      # Deploy to Play Store
+      # Deploy using Fastlane
       - run:
-          name: Deploy to Play Store
+          name: Deploy to Google Play
           command: bundle exec fastlane deploy
 
       # Cleanup sensitive files
@@ -47,7 +49,6 @@ jobs:
           command: |
             rm android/app/my-release-key.jks
             rm android/app/google-services.json
-            rm google-play-service-account.json
 
 workflows:
   version: 2
