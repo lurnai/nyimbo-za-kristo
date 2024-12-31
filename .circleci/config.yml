@@ -16,6 +16,11 @@ jobs:
       # Checkout source code
       - checkout
 
+      - run:
+          name: Debug Keystore Variable
+          command: echo "$KEYSTORE_BASE64" | head -c 100
+
+
       # Decode the keystore from Base64
       - run:
           name: Decode Keystore
