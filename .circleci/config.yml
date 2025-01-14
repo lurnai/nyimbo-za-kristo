@@ -30,12 +30,12 @@ jobs:
       # Decode Google Services JSON
       - run:
           name: Decode Google Services JSON
-          command: echo "$GOOGLE_SERVICES_JSON" | base64 --decode > android/app/google-services.json
+          command: echo "$GOOGLE_SERVICES_JSON" | tr -d '\n' | base64 --decode > android/app/google-services.json
 
       # Decode Google Play Service Account JSON
       - run:
           name: Decode Google Play Service Account JSON
-          command: echo "$GOOGLE_PLAY_JSON" | base64 --decode > android/google-play-service-account.json
+          command: echo "$GOOGLE_PLAY_JSON" | tr -d '\n' | base64 --decode > android/google-play-service-account.json
 
       # Run Fastlane for alpha release
       - run:
