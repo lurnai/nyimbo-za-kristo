@@ -22,7 +22,7 @@ jobs:
           command: echo "$KEYSTORE_BASE64" | head -c 100
 
 
-      # Decode the keystore from Base64
+      # Decode the keystore from Base64 to binary.
       - run:
           name: Decode Keystore
           command: echo "$KEYSTORE_BASE64" | tr -d '\n' | base64 --decode > android/app/my-release-key.jks
