@@ -11,8 +11,7 @@ platform :android do
   desc "Build and Deploy to Google Play (Closed Testing)"
   lane :alpha do
     # Build the APK
-    gradle(task: "clean assembleRelease")
-  
+    gradle(task: "clean assembleRelease", project_dir: 'android/')  
     # Upload to Google Play
     upload_to_play_store(
       json_key: "android/google-play-service-account.json", # Path to the decoded JSON key
