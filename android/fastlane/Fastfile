@@ -1,5 +1,5 @@
 # This Fastfile contains the configuration for deploying your app using Fastlane
-
+# For more information on Fastlane, visit https://docs.fastlane.tools/
 default_platform(:android)
 
 platform :android do
